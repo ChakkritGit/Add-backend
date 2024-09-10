@@ -8,7 +8,7 @@ export const createDrug = async (req: Request, res: Response<BaseResponse<Drugs>
     const body = req.body
     const pic = req.file
     res.status(200).json({
-      message: 'Create Drug Success',
+      message: 'Success',
       success: true,
       data: await addDrug(body, pic)
     })
@@ -20,7 +20,7 @@ export const createDrug = async (req: Request, res: Response<BaseResponse<Drugs>
 export const getDrug = async (req: Request, res: Response<BaseResponse<Drugs[]>>, next: NextFunction) => {
   try {
     res.status(200).json({
-      message: 'Get Drugs Success',
+      message: 'Success',
       success: true,
       data: await findDrug()
     })
@@ -33,7 +33,7 @@ export const getDrugById = async (req: Request, res: Response<BaseResponse<Drugs
   try {
     const { id } = req.params
     res.status(200).json({
-      message: 'Get Drugs Success',
+      message: 'Success',
       success: true,
       data: await findDrugId(id)
     })
@@ -48,7 +48,7 @@ export const editDrug = async (req: Request, res: Response<BaseResponse<Drugs>>,
     const body = req.body
     const pic = req.file
     res.status(200).json({
-      message: 'Edit Drugs Success',
+      message: 'Success',
       success: true,
       data: await editDrugService(body, id, pic)
     })
@@ -61,7 +61,7 @@ export const deleteDrug = async (req: Request, res: Response<BaseResponse<Drugs>
   try {
     const { id } = req.params
     res.status(200).json({
-      message: 'Delete Drugs Success',
+      message: 'Success',
       success: true,
       data: await deleteDrugService(id)
     })

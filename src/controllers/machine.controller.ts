@@ -7,7 +7,7 @@ export const addMachine = async (req: Request, res: Response<BaseResponse<Machin
   try {
     const body = req.body
     res.status(200).json({
-      message: 'Create Machine Success',
+      message: 'Success',
       success: true,
       data: await createMachine(body)
     })
@@ -19,7 +19,7 @@ export const addMachine = async (req: Request, res: Response<BaseResponse<Machin
 export const getMachine = async (req: Request, res: Response<BaseResponse<Machines[]>>, next: NextFunction) => {
   try {
     res.status(200).json({
-      message: 'Get Machine Success',
+      message: 'Success',
       success: true,
       data: await machineList()
     })
@@ -32,7 +32,7 @@ export const findMachine = async (req: Request, res: Response<BaseResponse<Machi
   try {
     const { id } = req.params
     res.status(200).json({
-      message: 'Get Machine Success',
+      message: 'Success',
       success: true,
       data: await searchMachine(id)
     })
@@ -46,7 +46,7 @@ export const editMachine = async (req: Request, res: Response<BaseResponse<Machi
     const { id } = req.params
     const body = req.body
     res.status(200).json({
-      message: 'Updated Machine Successfully',
+      message: 'Success',
       success: true,
       data: await updateMachine(id, body)
     })
@@ -59,7 +59,7 @@ export const deleteMachine = async (req: Request, res: Response<BaseResponse<Mac
   try {
     const { id } = req.params
     res.status(200).json({
-      message: 'Deleted Machine Successfully',
+      message: 'Success',
       success: true,
       data: await removeMachine(id)
     })

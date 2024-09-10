@@ -7,7 +7,7 @@ export const addInventory = async (req: Request, res: Response<BaseResponse<Inve
   try {
     const body = req.body
     res.status(200).json({
-      message: 'Create Inventory Success',
+      message: 'Success',
       success: true,
       data: await Createinventory(body)
     })
@@ -19,7 +19,7 @@ export const addInventory = async (req: Request, res: Response<BaseResponse<Inve
 export const getInventoryList = async (req: Request, res: Response<BaseResponse<Inventory[]>>, next: NextFunction) => {
   try {
     res.status(200).json({
-      message: 'Get Inventory Success',
+      message: 'Success',
       success: true,
       data: await inventoryList()
     })
@@ -32,7 +32,7 @@ export const findInventory = async (req: Request, res: Response<BaseResponse<Inv
   try {
     const { id } = req.params
     res.status(200).json({
-      message: 'Find Inventory Success',
+      message: 'Success',
       success: true,
       data: await inventorySearach(id)
     })
@@ -46,7 +46,7 @@ export const editInventory = async (req: Request, res: Response<BaseResponse<Inv
     const { id } = req.params
     const body = req.body
     res.status(200).json({
-      message: 'Updated Inventory Success',
+      message: 'Success',
       success: true,
       data: await inventoryModify(id, body)
     })
@@ -59,7 +59,7 @@ export const deleteInventory = async (req: Request, res: Response<BaseResponse<I
   try {
     const { id } = req.params
     res.status(200).json({
-      message: 'Delete Inventory Success',
+      message: 'Success',
       success: true,
       data: await Removeinventory(id)
     })

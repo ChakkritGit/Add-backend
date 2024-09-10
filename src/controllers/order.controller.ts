@@ -22,7 +22,7 @@ export const dispenseOrder = async (req: Request, res: Response<BaseResponse<Ord
       await statusPrescription(response.PrescriptionNo, "1")
       io.sockets.emit("res_message", `Create : ${response.PrescriptionNo}`)
       res.status(200).json({
-        message: 'Create Prescription and Orders Success',
+        message: 'Success',
         success: true,
         data: value
       })
@@ -36,7 +36,7 @@ export const getOrder = async (req: Request, res: Response<BaseResponse<Orders[]
   try {
     const { id } = req.params
     res.status(200).json({
-      message: 'Get order success',
+      message: 'Success',
       success: true,
       data: await getOrderService(id)
     })
@@ -51,7 +51,7 @@ export const receiveOrder = async (req: Request, res: Response<BaseResponse<Orde
     const drugId = sticker.split("|")[0]
     const presId = sticker.split("|")[1]
     res.status(200).json({
-      message: 'Receive order success',
+      message: 'Success',
       success: true,
       data: await received(drugId, presId)
     })
@@ -67,7 +67,7 @@ export const cancelOrder = async (req: Request, res: Response<BaseResponse<strin
     await cancelQueueAmqp('orders')
     io.sockets.emit("res_message", `Delete Order Success!!`)
     res.status(200).json({
-      message: 'Delete order success',
+      message: 'Success',
       success: true,
       data: 'Delete Order Success'
     })
@@ -91,7 +91,11 @@ export const updateOrderList = async (req: Request, res: Response) => {
         io.sockets.emit("res_message", `Complete : ${order_id}`)
       }
     }
-    res.status(200).json({ status: 200, msg: "Update Suscess!!", data: response })
+    res.status(200).json({
+      message: 'Success',
+      success: true,
+      data: response
+    })
   } catch (error) {
     res.status(400).json({ status: 400, error: error })
   }
