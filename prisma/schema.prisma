@@ -86,6 +86,7 @@ model Users {
   id               String         @id @db.VarChar(100)
   UserName         String         @unique @db.VarChar(155)
   UserPassword     String         @db.VarChar(155)
+  UserPincode      String         @db.VarChar(155)
   DisplayName      String         @db.VarChar(150)
   UserImage        String?        @db.VarChar(255)
   UserStatus       Boolean        @default(true)

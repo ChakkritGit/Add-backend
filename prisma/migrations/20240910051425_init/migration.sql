@@ -21,7 +21,9 @@ CREATE TABLE "Orders" (
     "OrderItemName" VARCHAR(200) NOT NULL,
     "OrderQty" INTEGER NOT NULL,
     "OrderUnitcode" VARCHAR(20) NOT NULL,
+    "Machine" VARCHAR(200) NOT NULL,
     "OrderStatus" CHAR(1) NOT NULL DEFAULT '0',
+    "Slot" VARCHAR(2),
     "CreatedAt" TIMESTAMP(3) NOT NULL DEFAULT CURRENT_TIMESTAMP,
     "UpdatedAt" TIMESTAMP(3) NOT NULL DEFAULT CURRENT_TIMESTAMP,
 
@@ -40,8 +42,7 @@ CREATE TABLE "Prescription" (
     "PriorityCode" VARCHAR(20) NOT NULL,
     "PriorityDesc" VARCHAR(200) NOT NULL,
     "PresStatus" CHAR(1) NOT NULL DEFAULT '0',
-    "CreatedByUserId" TEXT NOT NULL,
-    "UsedByUserId" TEXT,
+    "UsedByUserId" TEXT NOT NULL,
     "CreatedAt" TIMESTAMP(3) NOT NULL DEFAULT CURRENT_TIMESTAMP,
     "UpdatedAt" TIMESTAMP(3) NOT NULL DEFAULT CURRENT_TIMESTAMP,
 
@@ -80,6 +81,7 @@ CREATE TABLE "Users" (
     "id" VARCHAR(100) NOT NULL,
     "UserName" VARCHAR(155) NOT NULL,
     "UserPassword" VARCHAR(155) NOT NULL,
+    "UserPincode" VARCHAR(155) NOT NULL,
     "DisplayName" VARCHAR(150) NOT NULL,
     "UserImage" VARCHAR(255),
     "UserStatus" BOOLEAN NOT NULL DEFAULT true,
@@ -104,10 +106,7 @@ ALTER TABLE "Orders" ADD CONSTRAINT "Orders_PrescriptionId_fkey" FOREIGN KEY ("P
 ALTER TABLE "Orders" ADD CONSTRAINT "Orders_OrderItemId_fkey" FOREIGN KEY ("OrderItemId") REFERENCES "Drugs"("id") ON DELETE RESTRICT ON UPDATE CASCADE;
 
 -- AddForeignKey
-ALTER TABLE "Prescription" ADD CONSTRAINT "Prescription_CreatedByUserId_fkey" FOREIGN KEY ("CreatedByUserId") REFERENCES "Users"("id") ON DELETE RESTRICT ON UPDATE CASCADE;
-
--- AddForeignKey
-ALTER TABLE "Prescription" ADD CONSTRAINT "Prescription_UsedByUserId_fkey" FOREIGN KEY ("UsedByUserId") REFERENCES "Users"("id") ON DELETE SET NULL ON UPDATE CASCADE;
+ALTER TABLE "Prescription" ADD CONSTRAINT "Prescription_UsedByUserId_fkey" FOREIGN KEY ("UsedByUserId") REFERENCES "Users"("id") ON DELETE RESTRICT ON UPDATE CASCADE;
 
 -- AddForeignKey
 ALTER TABLE "Inventory" ADD CONSTRAINT "Inventory_DrugId_fkey" FOREIGN KEY ("DrugId") REFERENCES "Drugs"("id") ON DELETE RESTRICT ON UPDATE CASCADE;

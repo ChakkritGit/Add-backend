@@ -8,6 +8,8 @@ import { sign } from "jsonwebtoken"
 import { getDateFormat } from "../utils"
 import { PrismaClientKnownRequestError } from "@prisma/client/runtime/library"
 import { HttpError } from "../error"
+import CryptoJS from "crypto-js"
+import { GenQr } from "../types"
 
 export const userRegister = async (body: Users, pic?: Express.Multer.File): Promise<Users | undefined> => {
   try {
@@ -26,8 +28,9 @@ export const userRegister = async (body: Users, pic?: Express.Multer.File): Prom
       },
       data: {
         id: UUID,
-        UserName: body.UserName,
-        UserPassword: await hashPassword(body.UserPassword),
+        UserName: body.UserName.toLowerCase(),
+        UserPassword: await hashPassword(body.UserPassword.toLowerCase()),
+        UserPincode: String(CryptoJS.AES.encrypt(body.UserPincode, `${process.env.CRYPTO_SECRET}`)),
         DisplayName: body.DisplayName,
         UserImage: !pic ? null : `/img/users/${pic.filename}`,
         UserRole: body.UserRole,
@@ -49,6 +52,19 @@ export const userRegister = async (body: Users, pic?: Express.Multer.File): Prom
   }
 }
 
+export const createQrEncrypt = async (id: string): Promise<GenQr> => {
+  try {
+    const result = await prisma.users.findFirst({
+      where: { id: id },
+    })
+    return {
+      pinCode: result!.UserPincode as string
+    }
+  } catch (error) {
+    throw error
+  }
+}
+
 export const userLogin = async (body: Users): Promise<Users> => {
   try {
     const result = await prisma.users.findFirst({
@@ -57,6 +73,31 @@ export const userLogin = async (body: Users): Promise<Users> => {
     if (result) {
       if (!result.UserStatus) throw new HttpError(403, 'User is inactive')
       const match = await hashPasswordCompare(body.UserPassword, result.UserPassword)
+      if (match) {
+        const { id: userId, UserRole: userLevel, UserImage: userPic, DisplayName: userName, UserStatus: userStatus } = result
+        const token: string = sign({ userId, userLevel, userName, userStatus }, String(process.env.JWT_SECRET), { expiresIn: '7d' })
+        return { token, userId, userLevel, userStatus, userName, userPic } as unknown as Users
+      } else {
+        throw new HttpError(403, 'Password incorrect')
+      }
+    } else {
+      throw new HttpError(404, 'User not found')
+    }
+  } catch (error) {
+    throw error
+  }
+}
+
+export const userLoginQR = async (id: string): Promise<Users> => {
+  try {
+    const decrypt = CryptoJS.AES.decrypt(id, `${process.env.CRYPTO_SECRET}`).toString(CryptoJS.enc.Utf8)
+    const result = await prisma.users.findFirst({
+      where: { UserPincode: id }
+    })
+    const storeEcryppt = CryptoJS.AES.decrypt(String(result?.UserPincode), `${process.env.CRYPTO_SECRET}`).toString(CryptoJS.enc.Utf8)
+    if (result) {
+      if (!result.UserStatus) throw new HttpError(403, 'User is inactive')
+      const match = decrypt.includes(storeEcryppt)
       if (match) {
         const { id: userId, UserRole: userLevel, UserImage: userPic, DisplayName: userName, UserStatus: userStatus } = result
         const token: string = sign({ userId, userLevel, userName, userStatus }, String(process.env.JWT_SECRET), { expiresIn: '7d' })
