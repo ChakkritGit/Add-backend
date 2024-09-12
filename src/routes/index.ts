@@ -21,7 +21,7 @@ routes.use('/inventory', inventoryRouter)
 routes.use('/machine', machineRouter)
 routes.use('/orders', orderRouter)
 routes.use('/swagger', swaggerUi.serve, swaggerUi.setup(YAML.parse(file)))
-routes.use('/img', express.static('src/public/images'))
+routes.use('/img', express.static(process.env.NODE_ENV === 'development' ? 'src/public/images' : 'public/images'))
 routes.use('/', (req: Request, res: Response<BaseResponse>) => {
   res.status(404).json({
     message: 'Not Found',

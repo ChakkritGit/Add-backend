@@ -99,9 +99,9 @@ export const userLoginQR = async (id: string): Promise<Users> => {
       if (!result.UserStatus) throw new HttpError(403, 'User is inactive')
       const match = decrypt.includes(storeEcryppt)
       if (match) {
-        const { id: userId, UserRole: userLevel, UserImage: userPic, DisplayName: userName, UserStatus: userStatus } = result
-        const token: string = sign({ userId, userLevel, userName, userStatus }, String(process.env.JWT_SECRET), { expiresIn: '7d' })
-        return { token, userId, userLevel, userStatus, userName, userPic } as unknown as Users
+        const { id: userId, UserRole: userLevel, UserImage: userPic, DisplayName: displayName, UserStatus: userStatus } = result
+        const token: string = sign({ userId, userLevel, displayName, userStatus }, String(process.env.JWT_SECRET), { expiresIn: '7d' })
+        return { token, userId, userLevel, userStatus, displayName, userPic } as unknown as Users
       } else {
         throw new HttpError(403, 'Password incorrect')
       }

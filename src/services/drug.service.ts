@@ -12,7 +12,7 @@ export const addDrug = async (body: Drugs, pic?: Express.Multer.File): Promise<D
       data: {
         id: body.id,
         DrugName: body.DrugName,
-        DrugStatus: String(body.DrugStatus) === 'false' ? false : true,
+        DrugStatus: true,
         DrugImage: !pic ? null : `/img/drugs/${pic.filename}`,
         CreatedAt: getDateFormat(new Date()),
         UpdatedAt: getDateFormat(new Date())
@@ -35,7 +35,7 @@ export const findDrug = async (): Promise<Drugs[] | undefined> => {
   try {
     const result = await prisma.drugs.findMany({
       orderBy: {
-        Inventory: { InventoryPosition: 'asc' }
+        Inventory: { InventoryPosition: 'desc' }
       }
     })
     return result

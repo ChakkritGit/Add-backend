@@ -41,16 +41,16 @@ const selectPath = (path: string): string => {
   let pathname: string = "";
   switch (path) {
     case 'auth':
-      pathname = 'src/public/images/users';
+      pathname = process.env.NODE_ENV === 'development' ? 'src/public/images/users' : 'public/images/users';
       break;
     case 'users':
-      pathname = 'src/public/images/users';
+      pathname = process.env.NODE_ENV === 'development' ? 'src/public/images/users' : 'public/images/users';
       break;
     case 'drugs':
-      pathname = 'src/public/images/drugs';
+      pathname = process.env.NODE_ENV === 'development' ? 'src/public/images/drugs' : 'public/images/drugs';
       break;
     default:
-      pathname = 'src/public/images';
+      pathname = process.env.NODE_ENV === 'development' ? 'src/public/images' : 'public/images';
   }
   return pathname;
 }

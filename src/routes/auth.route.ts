@@ -6,7 +6,7 @@ import { verifyToken } from "../middlewares"
 const authRouter: Router = Router()
 
 authRouter.post('/login', checkLogin)
-authRouter.get('/getqr/:id', verifyToken, generateQR)
+authRouter.get('/qr/:id', verifyToken, generateQR)
 authRouter.post('/register', upload.single('fileupload'), verifyToken, createUser)
 
 export default authRouter
