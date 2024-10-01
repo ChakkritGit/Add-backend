@@ -4,8 +4,8 @@ import { cancelOrder, dispenseOrder, getOrder, receiveOrder, updateOrderList } f
 
 const orderRouter: Router = Router()
 
-orderRouter.get('/:id', verifyToken, getOrder)
-orderRouter.get('/dispense/:rfid/:uid', verifyToken, dispenseOrder)
+orderRouter.get('/', verifyToken, getOrder)
+orderRouter.get('/dispense/:rfid', verifyToken, dispenseOrder)
 orderRouter.get('/receive/:sticker', verifyToken, receiveOrder)
 orderRouter.post('/:prescriptionId', verifyToken, cancelOrder)
 orderRouter.patch('/list/:order_id', updateOrderList)

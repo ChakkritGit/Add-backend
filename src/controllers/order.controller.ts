@@ -5,19 +5,19 @@ import { HttpError } from "../error"
 import { getPharmacyPres } from "../interfaces"
 import { Orders } from "@prisma/client"
 import { io } from "../configs"
-import { QueueList } from "../types"
+import { OrderType, QueueList } from "../types"
 
-export const dispenseOrder = async (req: Request, res: Response<BaseResponse<Orders[]>>, next: NextFunction) => {
+export const dispenseOrder = async (req: Request, res: Response<BaseResponse<OrderType[]>>, next: NextFunction) => {
   try {
     const rfid = req.params.rfid
-    const uid = req.params.uid
+    const token = req.headers['authorization']
     const order = await findPrescription()
     if (!!order) {
       throw new HttpError(409, 'Order already exists')
     } else {
       const response = await getPharmacyPres(rfid)
-      const value = await createPresService(response, uid)
-      const cmd: QueueList[] = value.map((item) => { return { cmd: item.Machine, orderId: item.id } })
+      const value = await createPresService(response, token)
+      const cmd: QueueList[] = value.map((item) => { return { cmd: item.Command, orderId: item.id } })
       await sendOrder(cmd, 'orders')
       await statusPrescription(response.PrescriptionNo, "1")
       io.sockets.emit("res_message", `Create : ${response.PrescriptionNo}`)
@@ -34,11 +34,11 @@ export const dispenseOrder = async (req: Request, res: Response<BaseResponse<Ord
 
 export const getOrder = async (req: Request, res: Response<BaseResponse<Orders[]>>, next: NextFunction) => {
   try {
-    const { id } = req.params
+    const token = req.headers['authorization']
     res.status(200).json({
       message: 'Success',
       success: true,
-      data: await getOrderService(id)
+      data: await getOrderService(token)
     })
   } catch (error) {
     next(error)

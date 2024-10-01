@@ -9,10 +9,11 @@ export const createUser = async (req: Request, res: Response<BaseResponse<Users>
   try {
     const body = req.body
     const pic = req.file
+    const token = req.headers['authorization']
     res.status(200).json({
       message: 'Success',
       success: true,
-      data: await userRegister(body, pic)
+      data: await userRegister(body, pic, token)
     })
   } catch (error) {
     next(error)

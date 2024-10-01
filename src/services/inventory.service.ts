@@ -18,7 +18,7 @@ export const Createinventory = async (body: Inventory): Promise<Inventory> => {
         InventoryQty: body.InventoryQty,
         DrugId: body.DrugId,
         MachineId: body.MachineId,
-        Inventorytatus: true
+        InventoryStatus: true
       }
     })
     return result
@@ -37,7 +37,9 @@ export const Createinventory = async (body: Inventory): Promise<Inventory> => {
 
 export const inventoryList = async (): Promise<Inventory[]> => {
   try {
-    const result = await prisma.inventory.findMany()
+    const result = await prisma.inventory.findMany({
+      include: { Drug: true }
+    })
     return result
   } catch (error) {
     throw error
@@ -65,7 +67,7 @@ export const inventoryModify = async (id: string, body: Inventory): Promise<Inve
         InventoryQty: body.InventoryQty,
         DrugId: body.DrugId,
         MachineId: body.MachineId,
-        Inventorytatus: body.Inventorytatus
+        InventoryStatus: true
       },
       where: { id: id }
     })

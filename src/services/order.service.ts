@@ -1,11 +1,12 @@
 import { PrismaClientKnownRequestError } from "@prisma/client/runtime/library"
 import prisma from "../configs/prisma.config"
-import { Prescription, PrescriptionList } from "../types"
+import { jwtDecodeType, OrderType, Prescription, PrescriptionList } from "../types"
 import { HttpError } from "../error"
 import { Orders } from "@prisma/client"
 import { getDateFormat } from "../utils"
 import { statusPrescription } from "./prescription.service"
 import { io } from "../configs"
+import { jwtDecode } from "jwt-decode"
 
 export const findPrescription = async () => {
   try {
@@ -20,7 +21,9 @@ export const findPrescription = async () => {
   }
 }
 
-export const createPresService = async (pres: Prescription, uid: string): Promise<Orders[]> => {
+export const createPresService = async (pres: Prescription, token?: string): Promise<OrderType[]> => {
+  const splitToken = token?.split(' ')[1]
+    const decoded: jwtDecodeType = jwtDecode(String(splitToken))
   try {
     const presList: PrescriptionList[] = pres.Prescription.filter((item) => item.Machine === "ADD")
     if (presList.length > 0) {
@@ -33,6 +36,7 @@ export const createPresService = async (pres: Prescription, uid: string): Promis
           OrderQty: item.f_orderqty,
           OrderUnitcode: item.f_orderunitcode,
           Machine: item.Machine,
+          Command: item.command,
           OrderStatus: "0",
           Slot: null,
           CreatedAt: getDateFormat(new Date()),
@@ -53,7 +57,7 @@ export const createPresService = async (pres: Prescription, uid: string): Promis
             PriorityDesc: presList[0].f_prioritydesc,
             PresStatus: "0",
             UsedBy: {
-              connect: { id: uid }
+              connect: { id: decoded.userId }
             },
             CreatedAt: getDateFormat(new Date()),
             UpdatedAt: getDateFormat(new Date()),
@@ -61,7 +65,7 @@ export const createPresService = async (pres: Prescription, uid: string): Promis
         }),
         prisma.orders.createMany({ data: order })
       ])
-      return order
+      return order as OrderType[]
     } else {
       throw new HttpError(404, "Order not found on ADD")
     }
@@ -74,11 +78,13 @@ export const createPresService = async (pres: Prescription, uid: string): Promis
   }
 }
 
-export const getOrderService = async (id: string): Promise<Orders[]> => {
+export const getOrderService = async (token: string | undefined): Promise<Orders[]> => {
   try {
+    const splitToken = token?.split(' ')[1]
+    const decoded: jwtDecodeType = jwtDecode(String(splitToken))
     const result = await prisma.orders.findMany({
       include: { DrugInfo: { select: { DrugImage: true } } },
-      where: { Prescription: { UsedBy: { id: id } } }
+      where: { Prescription: { UsedBy: { id: decoded.userId } } }
     })
     if (result.length > 0) return result
     throw new HttpError(404, 'Orders not found')

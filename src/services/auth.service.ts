@@ -9,10 +9,14 @@ import { getDateFormat } from "../utils"
 import { PrismaClientKnownRequestError } from "@prisma/client/runtime/library"
 import { HttpError } from "../error"
 import CryptoJS from "crypto-js"
-import { GenQr } from "../types"
+import { GenQr, jwtDecodeType } from "../types"
+import { jwtDecode } from "jwt-decode";
 
-export const userRegister = async (body: Users, pic?: Express.Multer.File): Promise<Users | undefined> => {
+export const userRegister = async (body: Users, pic?: Express.Multer.File, token?: string): Promise<Users | undefined> => {
   try {
+    const splitToken = token?.split(' ')[1]
+    const decoded: jwtDecodeType = jwtDecode(String(splitToken))
+
     const UUID = `UID-${uuidv4()}`
     const result = await prisma.users.create({
       select: {
@@ -34,8 +38,8 @@ export const userRegister = async (body: Users, pic?: Express.Multer.File): Prom
         DisplayName: body.DisplayName,
         UserImage: !pic ? null : `/img/users/${pic.filename}`,
         UserRole: body.UserRole,
-        UserStatus: String(body.UserStatus) == "1" ? true : false,
-        CreateBy: body.CreateBy,
+        UserStatus: true,
+        CreateBy: decoded.displayName,
         CreatedAt: getDateFormat(new Date()),
         UpdatedAt: getDateFormat(new Date())
       }

@@ -35,3 +35,18 @@ export type QueueList = {
   cmd: string,
   orderId: string
 }
+
+export type OrderType = {
+  id: string,
+  PrescriptionId: string,
+  OrderItemId: string,
+  OrderItemName: string,
+  OrderQty: number,
+  OrderUnitcode: string,
+  Machine: string,
+  Command: string,
+  OrderStatus: string,
+  Slot?: string,
+  CreatedAt: Date,
+  UpdatedAt: Date
+}
