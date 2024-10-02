@@ -7,7 +7,7 @@ import { Orders } from "@prisma/client"
 import { io } from "../configs"
 import { OrderType, QueueList } from "../types"
 
-export const dispenseOrder = async (req: Request, res: Response<BaseResponse<OrderType[]>>, next: NextFunction) => {
+export const dispenseOrder = async (req: Request, res: Response<BaseResponse<Orders[]>>, next: NextFunction) => {
   try {
     const rfid = req.params.rfid
     const token = req.headers['authorization']

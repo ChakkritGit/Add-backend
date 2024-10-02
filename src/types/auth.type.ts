@@ -3,8 +3,8 @@ export type GenQr = {
 }
 
 export type jwtDecodeType = {
-  userId: string,
-  userLevel: string,
+  id: string,
+  userRole: string,
   displayName: string,
   userStatus: boolean,
   iat: number,
