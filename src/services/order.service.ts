@@ -23,7 +23,7 @@ export const findPrescription = async () => {
 
 export const createPresService = async (pres: Prescription, token?: string): Promise<OrderType[]> => {
   const splitToken = token?.split(' ')[1]
-    const decoded: jwtDecodeType = jwtDecode(String(splitToken))
+  const decoded: jwtDecodeType = jwtDecode(String(splitToken))
   try {
     const presList: PrescriptionList[] = pres.Prescription.filter((item) => item.Machine === "ADD")
     if (presList.length > 0) {
@@ -171,6 +171,28 @@ export const findOrders = async (condition: string[]): Promise<Orders[]> => {
       where: { OrderStatus: { in: condition } }
     })
     return result
+  } catch (error) {
+    throw error
+  }
+}
+
+export const clearAllOrder = async (): Promise<string> => {
+  try {
+    await prisma.$transaction([
+      prisma.orders.deleteMany(),
+      prisma.prescription.deleteMany(),
+      prisma.inventory.updateMany({
+        where: {
+          InventoryQty: {
+            lt: 10
+          }
+        },
+        data: {
+          InventoryQty: 10
+        }
+      })
+    ])
+    return 'Successfully'
   } catch (error) {
     throw error
   }
