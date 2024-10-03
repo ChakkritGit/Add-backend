@@ -49,12 +49,8 @@ export const createPresService = async (pres: Prescription, token?: string): Pro
           const ins = await prisma.inventory.findFirst({
             where: { DrugId: items.OrderItemId }
           })
-
-          if (!ins) {
-            return 'ไม่พบยา'
-          }
-
-          if (ins.InventoryQty > items.OrderQty) {
+          if (!ins) return
+          if (ins.InventoryQty < items.OrderQty) {
             return {
               message: `จำนวนยาในสต๊อกเหลือน้อยกว่าจำนวนที่จัด`,
               inventoryRemaining: ins.InventoryQty,
@@ -123,9 +119,13 @@ export const getOrderService = async (token: string | undefined): Promise<Orders
       const warning = await prisma.inventory.findFirst({
         where: { DrugId: order.OrderItemId }
       }).then((ins) => {
-        if (!ins) return 'ไม่พบยา'
+        if (!ins) return
         if (ins.InventoryQty < order.OrderQty) {
-          return `จำนวนยาในสต๊อกเหลือน้อยกว่าจำนวนที่จัด จำนวนยาในสต๊อก: ${ins.InventoryQty} - จำนวนยาที่จัด ${order.OrderQty}`
+          return {
+            message: `จำนวนยาในสต๊อกเหลือน้อยกว่าจำนวนที่จัด`,
+            inventoryRemaining: ins.InventoryQty,
+            orderQty: order.OrderQty
+          }
         }
         return null
       }).catch((e) => e.message)
@@ -229,13 +229,13 @@ export const clearAllOrder = async (): Promise<string> => {
       prisma.orders.deleteMany(),
       prisma.prescription.deleteMany(),
       prisma.inventory.updateMany({
-        where: {
-          InventoryQty: {
-            lt: 10
-          }
-        },
+        // where: {
+        //   InventoryQty: {
+        //     lt: 10
+        //   }
+        // },
         data: {
-          InventoryQty: 10
+          InventoryQty: 3
         }
       })
     ])
