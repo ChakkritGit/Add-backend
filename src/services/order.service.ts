@@ -24,25 +24,50 @@ export const findPrescription = async () => {
 export const createPresService = async (pres: Prescription, token?: string): Promise<Orders[]> => {
   const splitToken = token?.split(' ')[1]
   const decoded: jwtDecodeType = jwtDecode(String(splitToken))
+
   try {
     const presList: PrescriptionList[] = pres.Prescription.filter((item) => item.Machine === "ADD")
+
     if (presList.length > 0) {
-      const order: Orders[] = presList.map((item) => {
-        return {
-          id: `ORD-${item.RowID}`,
-          PrescriptionId: item.f_prescriptionno,
-          OrderItemId: item.f_orderitemcode,
-          OrderItemName: item.f_orderitemname,
-          OrderQty: item.f_orderqty,
-          OrderUnitcode: item.f_orderunitcode,
-          Machine: item.Machine,
-          Command: item.command,
-          OrderStatus: "0",
-          Slot: null,
-          CreatedAt: getDateFormat(new Date()),
-          UpdatedAt: getDateFormat(new Date())
+      const order: Orders[] = presList.map((item) => ({
+        id: `ORD-${item.RowID}`,
+        PrescriptionId: item.f_prescriptionno,
+        OrderItemId: item.f_orderitemcode,
+        OrderItemName: item.f_orderitemname,
+        OrderQty: item.f_orderqty,
+        OrderUnitcode: item.f_orderunitcode,
+        Machine: item.Machine,
+        Command: item.command,
+        OrderStatus: "0",
+        Slot: null,
+        CreatedAt: getDateFormat(new Date()),
+        UpdatedAt: getDateFormat(new Date())
+      }))
+
+      const warnings: string[] = await Promise.all(order.map(async (items) => {
+        try {
+          const ins = await prisma.inventory.findFirst({
+            where: { DrugId: items.OrderItemId }
+          })
+
+          if (!ins) {
+            return 'ไม่พบยา'
+          }
+
+          if (ins.InventoryQty > items.OrderQty) {
+            return {
+              message: `จำนวนยาในสต๊อกเหลือน้อยกว่าจำนวนที่จัด`,
+              inventoryRemaining: ins.InventoryQty,
+              orderQty: items.OrderQty
+            }
+          }
+        } catch (e: any) {
+          return e.message
         }
-      })
+        return null
+      }))
+
+      const filteredWarnings = warnings.filter(warning => warning !== null)
       await prisma.$transaction([
         prisma.prescription.create({
           data: {
@@ -65,6 +90,12 @@ export const createPresService = async (pres: Prescription, token?: string): Pro
         }),
         prisma.orders.createMany({ data: order })
       ])
+
+      if (filteredWarnings.length > 0) {
+        order.forEach((item, index) => {
+          (item as any).warning = filteredWarnings[index] || null;
+        })
+      }
       return order
     } else {
       throw new HttpError(404, "Order not found on ADD")
@@ -82,16 +113,32 @@ export const getOrderService = async (token: string | undefined): Promise<Orders
   try {
     const splitToken = token?.split(' ')[1]
     const decoded: jwtDecodeType = jwtDecode(String(splitToken))
+
     const result = await prisma.orders.findMany({
       include: { DrugInfo: { select: { DrugImage: true } } },
       where: { Prescription: { UsedBy: { id: decoded.id } } }
     })
-    if (result.length > 0) return result
-    throw new HttpError(404, 'Orders not found')
+
+    const updatedResult = await Promise.all(result.map(async (order) => {
+      const warning = await prisma.inventory.findFirst({
+        where: { DrugId: order.OrderItemId }
+      }).then((ins) => {
+        if (!ins) return 'ไม่พบยา'
+        if (ins.InventoryQty < order.OrderQty) {
+          return `จำนวนยาในสต๊อกเหลือน้อยกว่าจำนวนที่จัด จำนวนยาในสต๊อก: ${ins.InventoryQty} - จำนวนยาที่จัด ${order.OrderQty}`
+        }
+        return null
+      }).catch((e) => e.message)
+
+      return { ...order, warning }
+    }))
+
+    return updatedResult
   } catch (error) {
-    throw (error)
+    throw error
   }
 }
+
 
 export const received = async (drugId: string, presId: string): Promise<Orders> => {
   try {
