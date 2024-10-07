@@ -10,6 +10,7 @@ import machineRouter from './machine.route'
 import swaggerUi from 'swagger-ui-express'
 import fs from 'node:fs'
 import YAML from 'yaml'
+import deviceRouter from './device.route'
 
 const file = fs.readFileSync("./swagger.yml", "utf8")
 const routes = Router()
@@ -20,7 +21,7 @@ routes.use('/drugs', drugRouter)
 routes.use('/inventory', inventoryRouter)
 routes.use('/machine', machineRouter)
 routes.use('/orders', orderRouter)
-routes.use('/device', machineRouter)
+routes.use('/device', deviceRouter)
 routes.use('/swagger', swaggerUi.serve, swaggerUi.setup(YAML.parse(file)))
 routes.use('/img', express.static(process.env.NODE_ENV === 'development' ? 'src/public/images' : 'public/images'))
 routes.use('/', (req: Request, res: Response<BaseResponse>) => {

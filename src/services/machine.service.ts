@@ -86,7 +86,7 @@ export const removeMachine = async (id: string): Promise<Machines | null> => {
   }
 }
 
-export const updateOrderDevice = async (machine_id: string, machine_slot: string | null, order_id: string, value: boolean) => {
+export const updateOrderDeviceSlot = async (machine_id: string, machine_slot: string | null, order_id: string, value: boolean) => {
   try {
     await prisma.machines.update({
       where: { id: machine_id },
@@ -97,6 +97,23 @@ export const updateOrderDevice = async (machine_id: string, machine_slot: string
         where: { id: order_id },
         data: { Slot: machine_slot }
       });
+    }
+  } catch (error) {
+    throw error;
+  }
+}
+
+export const findSlotDevice = async (): Promise<string> => {
+  try {
+    const response: Machines | null = await prisma.machines.findUnique({
+      where: { id: "DEVICE-TEST" }
+    });
+    if (!response?.MachineSlot1) {
+      return "R1";
+    } else if (!response?.MachineSlot2) {
+      return "R2";
+    } else {
+      return "R0";
     }
   } catch (error) {
     throw error;
