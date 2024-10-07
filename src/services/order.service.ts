@@ -253,3 +253,14 @@ export const clearAllOrder = async (): Promise<string> => {
     throw error
   }
 }
+
+export const updatePrescription = async (prescriptionId: string, status: string) => {
+  try {
+    await prisma.prescription.update({
+      where: { id: prescriptionId },
+      data: { PresStatus: status }
+    })
+  } catch (error) {
+    throw error
+  }
+}

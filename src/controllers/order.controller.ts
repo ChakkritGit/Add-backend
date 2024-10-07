@@ -1,6 +1,6 @@
 import { NextFunction, Request, Response } from "express"
 import { BaseResponse } from "../models"
-import { cancelQueueAmqp, clearAllOrder, createPresService, deletePrescription, findOrders, findPrescription, getOrderService, received, sendOrder, statusPrescription, updateOrder } from "../services"
+import { cancelQueueAmqp, clearAllOrder, createPresService, deletePrescription, findOrders, findPrescription, getOrderService, received, sendOrder, statusPrescription, updateOrder, updatePrescription } from "../services"
 import { HttpError } from "../error"
 import { getPharmacyPres } from "../interfaces"
 import { Orders } from "@prisma/client"
@@ -87,8 +87,10 @@ export const updateOrderList = async (req: Request, res: Response) => {
       const order: Orders[] = await findOrders(['0', '1'])
       if (order.length === 0) {
         io.sockets.emit("res_message", `Complete & Done : ${response.PrescriptionId}`)
+        await updatePrescription(response.PrescriptionId, '2')
       } else {
         io.sockets.emit("res_message", `Complete : ${order_id}`)
+        await updatePrescription(response.PrescriptionId, '3')
       }
     }
     res.status(200).json({
