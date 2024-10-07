@@ -9,5 +9,6 @@ machineRouter.get('/', verifyToken, getMachine)
 machineRouter.get('/:id', verifyToken, findMachine)
 machineRouter.put('/:id', verifyToken, editMachine)
 machineRouter.delete('/:id', verifyToken, deleteMachine)
+machineRouter.patch('/:machine_id', deleteMachine)
 
 export default machineRouter

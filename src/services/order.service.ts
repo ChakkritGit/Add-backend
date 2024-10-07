@@ -27,22 +27,31 @@ export const createPresService = async (pres: Prescription, token?: string): Pro
 
   try {
     const presList: PrescriptionList[] = pres.Prescription.filter((item) => item.Machine === "ADD")
-
     if (presList.length > 0) {
-      const order: Orders[] = presList.map((item) => ({
-        id: `ORD-${item.RowID}`,
-        PrescriptionId: item.f_prescriptionno,
-        OrderItemId: item.f_orderitemcode,
-        OrderItemName: item.f_orderitemname,
-        OrderQty: item.f_orderqty,
-        OrderUnitcode: item.f_orderunitcode,
-        Machine: item.Machine,
-        Command: item.command,
-        OrderStatus: "0",
-        Slot: null,
-        CreatedAt: getDateFormat(new Date()),
-        UpdatedAt: getDateFormat(new Date())
-      }))
+      const order: Orders[] = presList.map((item) => {
+        // let command = item.command
+
+        // const numberAtPosition = command.slice(4, 5)
+
+        // if (numberAtPosition >= '1' && numberAtPosition <= '9') {
+        //   command = command.slice(0, 4) + '0' + command.slice(4)
+        // }
+
+        return {
+          id: `ORD-${item.RowID}`,
+          PrescriptionId: item.f_prescriptionno,
+          OrderItemId: item.f_orderitemcode,
+          OrderItemName: item.f_orderitemname,
+          OrderQty: item.f_orderqty,
+          OrderUnitcode: item.f_orderunitcode,
+          Machine: item.Machine,
+          Command: item.command,
+          OrderStatus: "0",
+          Slot: null,
+          CreatedAt: getDateFormat(new Date()),
+          UpdatedAt: getDateFormat(new Date())
+        }
+      })
 
       const warnings: string[] = await Promise.all(order.map(async (items) => {
         try {

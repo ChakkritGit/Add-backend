@@ -83,7 +83,7 @@ export const updateOrderList = async (req: Request, res: Response) => {
     const response = await updateOrder(order_id, order_status)
     if (response?.OrderStatus === '1') {
       io.sockets.emit("res_message", `Dispensing : ${order_id}`)
-    } else if (response?.OrderStatus === '2') {
+    } else if (response?.OrderStatus === '2' || response?.OrderStatus === '3') {
       const order: Orders[] = await findOrders(['0', '1'])
       if (order.length === 0) {
         io.sockets.emit("res_message", `Complete & Done : ${response.PrescriptionId}`)

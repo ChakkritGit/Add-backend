@@ -85,3 +85,20 @@ export const removeMachine = async (id: string): Promise<Machines | null> => {
     throw error
   }
 }
+
+export const updateOrderDevice = async (machine_id: string, machine_slot: string | null, order_id: string, value: boolean) => {
+  try {
+    await prisma.machines.update({
+      where: { id: machine_id },
+      data: machine_slot === "R1" ? { MachineSlot1: value } : { MachineSlot2: value }
+    });
+    if (value) {
+      await prisma.orders.update({
+        where: { id: order_id },
+        data: { Slot: machine_slot }
+      });
+    }
+  } catch (error) {
+    throw error;
+  }
+}
