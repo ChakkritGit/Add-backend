@@ -68,22 +68,28 @@ export const deleteMachine = async (req: Request, res: Response<BaseResponse<Mac
   }
 }
 
-export const findSlot = async (req: Request, res: Response) => {
+export const findSlot = async (req: Request, res: Response, next: NextFunction) => {
   try {
-    const response = await findSlotDevice()
-    res.status(200).json({ status: 200, data: response })
+    res.status(200).json({
+      message: 'Success',
+      success: true,
+      data: await findSlotDevice()
+    })
   } catch (error) {
-    res.status(400).json({ status: 400, error: error })
+    next(error)
   }
 }
 
-export const useSlot = async (req: Request, res: Response) => {
+export const useSlot = async (req: Request, res: Response, next: NextFunction) => {
   try {
     const { machine_id } = req.params
     const { machine_slot, order_id, value } = req.body
-    const response = await updateOrderDeviceSlot(machine_id, machine_slot, order_id, value)
-    res.status(200).json({ status: 200, data: response })
+    res.status(200).json({
+      message: 'Success',
+      success: true,
+      data: await updateOrderDeviceSlot(machine_id, machine_slot, order_id, value)
+    })
   } catch (error) {
-    res.status(400).json({ status: 400, error: error })
+    next(error)
   }
 }

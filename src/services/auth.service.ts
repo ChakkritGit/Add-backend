@@ -34,7 +34,7 @@ export const userRegister = async (body: Users, pic?: Express.Multer.File, token
         id: UUID,
         UserName: body.UserName.toLowerCase(),
         UserPassword: await hashPassword(body.UserPassword.toLowerCase()),
-        UserPincode: String(CryptoJS.AES.encrypt(body.UserPincode, `${process.env.CRYPTO_SECRET}`)),
+        UserPincode: String(CryptoJS.AES.encrypt(body.UserPincode.toLowerCase(), `${process.env.CRYPTO_SECRET}`)),
         DisplayName: body.DisplayName,
         UserImage: !pic ? null : `/img/users/${pic.filename}`,
         UserRole: body.UserRole,
@@ -72,11 +72,11 @@ export const createQrEncrypt = async (id: string): Promise<GenQr> => {
 export const userLogin = async (body: Users): Promise<Users> => {
   try {
     const result = await prisma.users.findFirst({
-      where: { UserName: body.UserName }
+      where: { UserName: body.UserName.toLowerCase() }
     })
     if (result) {
       if (!result.UserStatus) throw new HttpError(403, 'User is inactive')
-      const match = await hashPasswordCompare(body.UserPassword, result.UserPassword)
+      const match = await hashPasswordCompare(body.UserPassword.toLowerCase(), result.UserPassword)
       if (match) {
         const { id: id, UserRole: userRole, UserImage: userImage, DisplayName: displayName, UserStatus: userStatus } = result
         const token: string = sign({ id, userRole, displayName, userStatus }, String(process.env.JWT_SECRET), { expiresIn: '7d' })

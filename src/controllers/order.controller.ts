@@ -48,12 +48,12 @@ export const getOrder = async (req: Request, res: Response<BaseResponse<Orders[]
 export const receiveOrder = async (req: Request, res: Response<BaseResponse<Orders>>, next: NextFunction) => {
   try {
     const { sticker } = req.params
-    const drugId = sticker.split("|")[0]
-    const presId = sticker.split("|")[1]
+    const presId = sticker.split("|")[0]
+    const drugId = sticker.split("|")[1]
     res.status(200).json({
       message: 'Success',
       success: true,
-      data: await received(drugId, presId)
+      data: await received(presId, drugId)
     })
   } catch (error) {
     next(error)

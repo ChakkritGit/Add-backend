@@ -121,7 +121,8 @@ export const getOrderService = async (token: string | undefined): Promise<Orders
 
     const result = await prisma.orders.findMany({
       include: { DrugInfo: { select: { DrugImage: true } } },
-      where: { Prescription: { UsedBy: { id: decoded.id } } }
+      where: { Prescription: { UsedBy: { id: decoded.id } } },
+      orderBy: { OrderStatus: 'desc' }
     })
 
     const updatedResult = await Promise.all(result.map(async (order) => {
@@ -149,12 +150,12 @@ export const getOrderService = async (token: string | undefined): Promise<Orders
 }
 
 
-export const received = async (drugId: string, presId: string): Promise<Orders> => {
+export const received = async (presId: string, drugId: string): Promise<Orders> => {
   try {
     const result = await prisma.orders.findFirst({
       where: {
-        id: drugId,
-        OrderItemId: presId
+        PrescriptionId: presId,
+        OrderItemId: drugId
       },
       include: { DrugInfo: { include: { Inventory: { include: { Machines: true } } } } }
     })
